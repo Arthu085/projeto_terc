@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
-import warnings
 import openpyxl as op
-
-warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
 caminho_arquivo = r"C:\Users\arthu\OneDrive\Documentos\Repositórios\projeto_usi_terc\Controle de Terceiros 2024 Atualizada copia - Copia.xlsm"
 nome_planilha = "TABELA UNIFICADA 2024"
