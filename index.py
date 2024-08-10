@@ -5,9 +5,11 @@ import openpyxl as op
 pagina = st.set_page_config(page_title='Terceiro',
                     layout="wide")
 
-caminho_arquivo = r"C:\Users\arthu\OneDrive\Documentos\Repositórios\projeto_usi_terc\Controle de Terceiros 2024 Atualizada copia - Copia.xlsm"
-nome_planilha = "TABELA UNIFICADA 2024"
+caminho_arquivo = r"C:\Users\arthu\OneDrive\Documentos\Repositórios\projeto_usi_terc\Controle de Terceiros 2024 Atualizada copia - Copia.xlsx"
+nome_planilha = 'TABELA UNIFICADA 2024'
+nome_planilha2 = 'INSERIR DADOS'
 df = pd.read_excel(caminho_arquivo, sheet_name=nome_planilha, skiprows=1)
+df2 = pd.read_excel(caminho_arquivo, sheet_name=nome_planilha2)
 
 st.title("Usinagem de Terceiro")
 
@@ -105,6 +107,7 @@ with tab2:
                             'ITEM NF': item_nf_codigo,
                             'DIÂMETRO FP': diametro_fp,
                             'QTD': qtd_pecas,
+                            'OBS': obs,
                             'VALOR': preco,
                             '': 0,
                             'TIPO DE BUCHA': escolha_bucha,
@@ -112,9 +115,11 @@ with tab2:
                             'QTD FF': qtd_fix,
                             'COLETA': data_coleta,
                             'ENTREGA PREVISTA': data_prevista}
-                df = pd.concat([df, pd.DataFrame([nova_linha])], ignore_index=True)
-                with pd.ExcelWriter(caminho_arquivo, mode='a', if_sheet_exists='overlay') as writer:
-                    df.to_excel(writer, sheet_name=nome_planilha, index=False)
-                st.success('Entrega adcionada')
+                workbook = op.load_workbook(caminho_arquivo)
+                worksheet = workbook[nome_planilha2]
+                last_row = worksheet.max_row + 1
+                worksheet.append(list(nova_linha.values()))
+                workbook.save(caminho_arquivo)
+                st.success('Entrega adicionada')
             except Exception as e:
                 st.error(f'Erro ao adicionar a entrega: {e}')
