@@ -100,26 +100,42 @@ with tab2:
         data_prevista = st.date_input("Selecione a data de entrega prevista:", format="DD/MM/YYYY")
         
         if st.button('Adicionar Entrega'):
-            try:
-                nova_linha = {'FORNECEDOR': escolha_fornecedor, 
-                            'OP': op_numero,
-                            'ITEM': item_codigo,
-                            'ITEM NF': item_nf_codigo,
-                            'DIÂMETRO FP': diametro_fp,
-                            'QTD': qtd_pecas,
-                            'OBS': obs,
-                            'VALOR': preco,
-                            '': 0,
-                            'TIPO DE BUCHA': escolha_bucha,
-                            'OPERAÇÃO': operacao,
-                            'QTD FF': qtd_fix,
-                            'COLETA': data_coleta,
-                            'ENTREGA PREVISTA': data_prevista}
-                workbook = op.load_workbook(caminho_arquivo)
-                worksheet = workbook[nome_planilha2]
-                last_row = worksheet.max_row + 1
-                worksheet.append(list(nova_linha.values()))
-                workbook.save(caminho_arquivo)
-                st.success('Entrega adicionada')
-            except Exception as e:
-                st.error(f'Erro ao adicionar a entrega: {e}')
+            campos_obrigatorios = [
+            ('FORNECEDOR', escolha_fornecedor),
+            ('OP', op_numero),
+            ('ITEM', item_codigo),
+            ('ITEM NF', item_nf_codigo),
+            ('QTD', qtd_pecas),
+            ('VALOR', preco),
+            ('TIPO DE BUCHA', escolha_bucha),
+            ('OPERAÇÃO', operacao),
+            ('COLETA', data_coleta),
+            ('ENTREGA PREVISTA', data_prevista)
+                                                ]
+            campos_preenchidos = all(campo_valor and str(campo_valor).strip() for campo_nome, campo_valor in campos_obrigatorios) 
+            if campos_preenchidos:
+                try:
+                    nova_linha = {'FORNECEDOR': escolha_fornecedor, 
+                                'OP': op_numero,
+                                'ITEM': item_codigo, 
+                                'ITEM NF': item_nf_codigo,
+                                'DIÂMETRO FP': diametro_fp,
+                                'QTD': qtd_pecas,
+                                'OBS': obs,
+                                'VALOR': preco,
+                                '': 0,
+                                'TIPO DE BUCHA': escolha_bucha,
+                                'OPERAÇÃO': operacao,
+                                'QTD FF': qtd_fix,
+                                'COLETA': data_coleta,
+                                'ENTREGA PREVISTA': data_prevista}
+                    workbook = op.load_workbook(caminho_arquivo)
+                    worksheet = workbook[nome_planilha2]
+                    last_row = worksheet.max_row + 1
+                    worksheet.append(list(nova_linha.values()))
+                    workbook.save(caminho_arquivo)
+                    st.success('Entrega adicionada')
+                except Exception as e:
+                    st.error(f'Erro ao adicionar a entrega: {e}')
+            else:
+                st.error('Digite os campos obrigatórios')
