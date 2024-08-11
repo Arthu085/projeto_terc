@@ -49,6 +49,8 @@ tab1, tab2, tab3, tab4 = st.tabs(["Entregas em Aberto", "Adicionar Entregas", "R
 with tab1:
     st.subheader("Entregas em Aberto")
     fornecedor_col = 'FORNECEDOR'
+
+    
     if fornecedor_col in df.columns:
         fornecedores_ordenados = sorted(df[fornecedor_col].dropna().astype(str).unique())
         fornecedores_ordenados.insert(0, "TODOS")
@@ -69,9 +71,17 @@ with tab1:
 with tab4:
     st.subheader("Entregas Realizadas")
     entregas_realizadas_col = 'ENTREGA REALIZADA'
-    if entrega_realizada_col in df.columns:
-        df_entrega_realziada = df[df[entregas_realizadas_col].notnull()]
-        st.write(df_entrega_realziada)
+    pesquisa = st.text_input('Pesquisar Item:')
+    resultado_pesquisa = df[df['ITEM'].str.contains(pesquisa, case=False, na=False)]
+    if pesquisa:
+        if not resultado_pesquisa.empty:
+            st.write(resultado_pesquisa)
+        else:
+            st.error('Nenhum resultado encontrado.')
+    else:
+        if entrega_realizada_col in df.columns:
+            df_entrega_realziada = df[df[entregas_realizadas_col].notnull()]
+            st.write(df_entrega_realziada)
 
 with tab2:
     st.subheader("Adicionar Entrega")
