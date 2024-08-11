@@ -77,11 +77,9 @@ with tab2:
             diametro_fp = 0.00
         qtd_pecas = st.number_input("Digite a quantidade:", min_value=0, max_value=10000)
         obs = st.text_input("Digite a observação:")
-        try:
-            preco = st.number_input("Digite o preço:", min_value=0.00)
-        except:
-            st.error("Por favor não digite valores negativos")
-            preco = 0.00
+        preco = st.number_input("Digite o preço:", min_value=0.00, format="%.2f")
+        if preco < 0:
+            st.error("O preço não pode ser negativo.")
         buchas_ordenadas = sorted(df['TIPO DE BUCHA'].dropna().astype(str).unique())
         escolha_bucha = st.selectbox("Selecione o tipo de bucha:", buchas_ordenadas)
 
@@ -106,7 +104,6 @@ with tab2:
             ('ITEM', item_codigo),
             ('ITEM NF', item_nf_codigo),
             ('QTD', qtd_pecas),
-            ('VALOR', preco),
             ('TIPO DE BUCHA', escolha_bucha),
             ('OPERAÇÃO', operacao),
             ('COLETA', data_coleta),
