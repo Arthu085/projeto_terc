@@ -8,8 +8,27 @@ pagina = st.set_page_config(page_title='Terceiro',
 caminho_arquivo = r"C:\Users\arthu\OneDrive\Documentos\Repositórios\projeto_usi_terc\Controle de Terceiros 2024 Atualizada copia - Copia.xlsx"
 nome_planilha = 'TABELA UNIFICADA 2024'
 nome_planilha2 = 'INSERIR DADOS'
-df = pd.read_excel(caminho_arquivo, sheet_name=nome_planilha, skiprows=1)
-df2 = pd.read_excel(caminho_arquivo, sheet_name=nome_planilha2)
+
+@st.cache_data
+def carregar_planilha1():
+    df = pd.read_excel(caminho_arquivo, sheet_name=nome_planilha, skiprows=1)
+    df['COLETA'] = df['COLETA'].dt.strftime('%d/%m/%Y')
+    df['ENTREGA REALIZADA'] = df['ENTREGA REALIZADA'].dt.strftime('%d/%m/%Y')
+    df['ENTREGA PREVISTA'] = df['ENTREGA PREVISTA'].dt.strftime('%d/%m/%Y')
+    return df
+
+@st.cache_data
+def carregar_planilha2():
+    return pd.read_excel(caminho_arquivo, sheet_name=nome_planilha2)
+
+df = carregar_planilha1()
+df2 = carregar_planilha2()
+
+def encontrar_primeira_linha_vazia(worksheet):
+    for row in range(1, worksheet.max_row + 1):  
+        if worksheet.cell(row=row, column=1).value is None:
+            return row
+    return worksheet.max_row + 1
 
 st.title("Usinagem de Terceiro")
 
@@ -23,16 +42,13 @@ try:
 except:
     df['DIÂMETRO FP'] = df['DIÂMETRO FP'].astype(str) 
 
-df['COLETA'] = df['COLETA'].dt.strftime('%d/%m/%Y')
-df['ENTREGA REALIZADA'] = df['ENTREGA REALIZADA'].dt.strftime('%d/%m/%Y')
-df['ENTREGA PREVISTA'] = df['ENTREGA PREVISTA'].dt.strftime('%d/%m/%Y')
+
 
 tab1, tab2, tab3, tab4 = st.tabs(["Entregas em Aberto", "Adicionar Entregas", "Requisitar O.C", "Entregas Realizadas"])
 
 with tab1:
     st.subheader("Entregas em Aberto")
     fornecedor_col = 'FORNECEDOR'
-
     if fornecedor_col in df.columns:
         fornecedores_ordenados = sorted(df[fornecedor_col].dropna().astype(str).unique())
         fornecedores_ordenados.insert(0, "TODOS")
@@ -128,8 +144,9 @@ with tab2:
                                 'ENTREGA PREVISTA': data_prevista}
                     workbook = op.load_workbook(caminho_arquivo)
                     worksheet = workbook[nome_planilha2]
-                    last_row = worksheet.max_row + 1
-                    worksheet.append(list(nova_linha.values()))
+                    primeira_linha_vazia = encontrar_primeira_linha_vazia(worksheet)
+                    for col_num, (key, value) in enumerate(nova_linha.items(), start=1):
+                        worksheet.cell(row=primeira_linha_vazia, column=col_num, value=value)
                     workbook.save(caminho_arquivo)
                     st.success('Entrega adicionada')
                 except Exception as e:
